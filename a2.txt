@@ -1,0 +1,80 @@
+import xml.etree.ElementTree as et
+import threading
+import unittest
+
+def getdata(f):
+	xmltree = et.parse(f)
+	root = xmltree.getroot()
+	a = []
+	for child in root:
+		a.append(int(child.text))
+	print a
+	return a
+
+def quicksort(l,r):
+	if(l<=r):
+		mid = partition(l,r)
+		print threading.current_thread().getName()," : this thread found mid ",mid 
+		quicksort(l,mid-1)
+		quicksort(mid+1,r)
+		t1 = threading.Thread(target=quicksort,args=(l,mid-1))
+		t1.start()
+		t2 = threading.Thread(target=quicksort,args=(mid+1,r))
+		t2.start()
+
+		t1.join()
+		t2.join()
+
+def partition(l,r):
+	i=l+1
+	j=r
+	pivot = a[l]
+
+	while i<=j:
+		while i<len(a) and pivot>=a[i]:
+			i=i+1
+
+		while pivot<a[j]:
+			j=j-1
+
+		if i<j:
+			a[i],a[j]=a[j],a[i]
+		
+	a[j],a[l]=pivot,a[j]
+	return j
+
+def printans():
+	quicksort(0,len(a)-1)
+	return a
+
+class MyTest(unittest.TestCase):
+	def test_input(self):
+		try:
+			if getdata("input.xml")==None:
+				self.fail("Failed to get data from xml")
+		except:
+			self.fail("cannot open file")
+
+	def test_ipcheck(self):
+		self.assertEqual(getdata("input.xml"),[12,55,34,7,98])
+
+	def test_pos(self):
+		self.assertEqual(printans(),[7,12,34,55,98])
+
+	def test_neg(self):
+		self.assertEqual(printans(),[8,12,35,55,98])
+
+a=getdata("input.xml")
+arr = printans()
+print "-----------------------------Testing------------------------------\n"
+unittest.main()
+
+
+
+<list>
+<data>12</data>
+<data>55</data>
+<data>34</data>
+<data>7</data>
+<data>98</data>
+</list>
